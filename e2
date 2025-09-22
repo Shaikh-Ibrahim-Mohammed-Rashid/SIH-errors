@@ -1,0 +1,12 @@
+pi@raspberrypi:~/Desktop/SIH $ python3 app.py
+2025-09-22 15:27:03.599235: E tensorflow/core/platform/hadoop/hadoop_file_system.cc:132] HadoopFileSystem load error: libhdfs.so: cannot open shared object file: No such file or directory
+Traceback (most recent call last):
+  File "app.py", line 13, in <module>
+    model = tf.keras.models.load_model("plant_disease_model.h5")
+  File "/home/pi/.local/lib/python3.7/site-packages/tensorflow_core/python/keras/saving/save.py", line 146, in load_model
+    return hdf5_format.load_model_from_hdf5(filepath, custom_objects, compile)
+  File "/home/pi/.local/lib/python3.7/site-packages/tensorflow_core/python/keras/saving/hdf5_format.py", line 166, in load_model_from_hdf5
+    model_config = json.loads(model_config.decode('utf-8'))
+AttributeError: 'str' object has no attribute 'decode'
+pi@raspberrypi:~/Desktop/SIH $ ls
+app.py  main_app.py  plant_disease_model.h5
