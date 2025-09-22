@@ -1,0 +1,8 @@
+pi@raspberrypi:~ $ pip3 install tensorflow==2.2.0
+WARNING: pip is being invoked by an old script wrapper. This will fail in a future version of pip.
+Please see https://github.com/pypa/pip/issues/5599 for advice on fixing the underlying issue.
+To avoid this problem you can invoke Python with '-m pip' instead of running pip directly.
+Defaulting to user installation because normal site-packages is not writeable
+Looking in indexes: https://pypi.org/simple, https://www.piwheels.org/simple
+ERROR: Could not find a version that satisfies the requirement tensorflow==2.2.0 (from versions: 1.12.0, 1.13.1, 1.14.0)
+ERROR: No matching distribution found for tensorflow==2.2.0
