@@ -1,0 +1,198 @@
+from flask import Flask, redirect, url_for, request, render_template, Response
+import RPi.GPIO as GPIO
+import cv2
+import time
+import socket
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setwarnings(False)
+
+# Motor direction pins
+Motor_In1 = 29  # IN1
+Motor_In2 = 31  # IN2  
+Motor_In3 = 33  # IN3
+Motor_In4 = 35  # IN4
+
+# Water Pump Pin
+PUMP_PIN = 37  # Use any available GPIO pin for pump
+
+# ENABLE PINS for L298N
+ENA = 32  # Enable Pin for Motor A (PWM)
+ENB = 36  # Enable Pin for Motor B (PWM)
+
+# Setup all pins
+GPIO.setup(Motor_In1, GPIO.OUT)
+GPIO.setup(Motor_In2, GPIO.OUT)
+GPIO.setup(Motor_In3, GPIO.OUT)
+GPIO.setup(Motor_In4, GPIO.OUT)
+GPIO.setup(PUMP_PIN, GPIO.OUT)  # Setup pump pin
+
+# SETUP ENABLE PINS AS PWM
+GPIO.setup(ENA, GPIO.OUT)
+GPIO.setup(ENB, GPIO.OUT)
+
+# Create PWM objects for speed control
+pwm_a = GPIO.PWM(ENA, 1000)
+pwm_b = GPIO.PWM(ENB, 1000)
+
+# Start PWM with 0% duty cycle (stopped)
+pwm_a.start(0)
+pwm_b.start(0)
+
+# Set initial motor states
+GPIO.output(Motor_In1, False)
+GPIO.output(Motor_In2, False)
+GPIO.output(Motor_In3, False)
+GPIO.output(Motor_In4, False)
+GPIO.output(PUMP_PIN, False)  # Pump initially OFF
+
+# Motor speed (0-100%)
+motor_speed = 50
+
+def set_motor_speed(speed):
+    """Set speed for both motors"""
+    pwm_a.ChangeDutyCycle(speed)
+    pwm_b.ChangeDutyCycle(speed)
+
+# Set initial speed
+set_motor_speed(motor_speed)
+
+video_capture = cv2.VideoCapture(0)
+
+# Auto-detect local IP
+def get_local_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "0.0.0.0"  # fallback
+
+Url_Address = get_local_ip()
+app = Flask(__name__)
+
+def generate_frames():
+    while True:
+        result, output = video_capture.read()
+        if not result:
+            continue
+        ret, buffer = cv2.imencode('.jpg', output)
+        frame = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# MOTOR CONTROL FUNCTIONS
+@app.route('/Forward', methods=['POST', 'GET'])
+def Forward():
+    try:
+        print("forward")
+        set_motor_speed(motor_speed)
+        GPIO.output(Motor_In1, True)
+        GPIO.output(Motor_In2, False)
+        GPIO.output(Motor_In3, True)
+        GPIO.output(Motor_In4, False)
+        time.sleep(0.1)
+        return render_template("temp.html", HTML_address=Url_Address)
+    except:
+        print("Error: unable to fetch data")
+
+@app.route('/Backward', methods=['POST', 'GET'])
+def Backward():
+    try:
+        print("backward")
+        set_motor_speed(motor_speed)
+        GPIO.output(Motor_In1, False)
+        GPIO.output(Motor_In2, True)
+        GPIO.output(Motor_In3, False)
+        GPIO.output(Motor_In4, True)
+        time.sleep(0.1)
+        return render_template("temp.html", HTML_address=Url_Address)
+    except:
+        print("Error: unable to fetch data")
+
+@app.route('/left', methods=['POST', 'GET'])
+def left():
+    try:
+        print("left")
+        set_motor_speed(motor_speed)
+        GPIO.output(Motor_In1, True)
+        GPIO.output(Motor_In2, False)
+        GPIO.output(Motor_In3, False)
+        GPIO.output(Motor_In4, True)
+        time.sleep(0.1)
+        return render_template("temp.html", HTML_address=Url_Address)
+    except:
+        print("Error: unable to fetch data")
+
+@app.route('/right', methods=['POST', 'GET'])
+def right():
+    try:
+        print("right")
+        set_motor_speed(motor_speed)
+        GPIO.output(Motor_In1, False)
+        GPIO.output(Motor_In2, True)
+        GPIO.output(Motor_In3, True)
+        GPIO.output(Motor_In4, False)
+        time.sleep(0.1)
+        return render_template("temp.html", HTML_address=Url_Address)
+    except:
+        print("Error: unable to fetch data")
+
+@app.route('/stop', methods=['POST', 'GET'])
+def stop():
+    try:
+        print("stop")
+        set_motor_speed(0)
+        GPIO.output(Motor_In1, False)
+        GPIO.output(Motor_In2, False)
+        GPIO.output(Motor_In3, False)
+        GPIO.output(Motor_In4, False)
+        time.sleep(0.1)
+        return render_template("temp.html", HTML_address=Url_Address)
+    except:
+        print("Error: unable to fetch data")
+
+# SINGLE SPRAY BUTTON FUNCTION
+@app.route('/spray', methods=['POST', 'GET'])
+def spray():
+    try:
+        print("Spray STARTED")
+        GPIO.output(PUMP_PIN, True)
+        time.sleep(3)  # spraying time
+        GPIO.output(PUMP_PIN, False)
+        print("Spray STOPPED")
+        return render_template("temp.html", HTML_address=Url_Address)
+    except:
+        print("Error: unable to control spray")
+
+# SPEED CONTROL
+@app.route('/speed/<int:speed>', methods=['POST', 'GET'])
+def set_speed(speed):
+    global motor_speed
+    motor_speed = max(0, min(100, speed))
+    set_motor_speed(motor_speed)
+    return f"Speed set to {motor_speed}%"
+
+@app.route('/')
+def login():
+    return render_template("temp.html", HTML_address=Url_Address)
+
+# Cleanup function
+def cleanup():
+    pwm_a.stop()
+    pwm_b.stop()
+    GPIO.output(PUMP_PIN, False)
+    GPIO.cleanup()
+
+if __name__ == '__main__':
+    try:
+        print(f"Starting server on http://{Url_Address}:8080")
+        app.run(host=Url_Address, port=8080, threaded=True)
+    except KeyboardInterrupt:
+        cleanup()
