@@ -3,7 +3,6 @@ import RPi.GPIO as GPIO
 import cv2
 import time
 import socket
-import sys
 
 # ===================== GPIO SETUP =====================
 GPIO.setmode(GPIO.BOARD)
@@ -54,30 +53,19 @@ def set_motor_speed(speed):
 set_motor_speed(motor_speed)
 
 # ===================== CAMERA =====================
-video_capture = cv2.VideoCapture(0)
-
-if not video_capture.isOpened():
-    print("❌ Error: Could not open camera.")
-    sys.exit(1)
-
-# Set resolution & fps for stability
+video_capture = cv2.VideoCapture(0)  # Use index 0 only
 video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-video_capture.set(cv2.CAP_PROP_FPS, 30)
 
 def generate_frames():
     while True:
         success, frame = video_capture.read()
         if not success:
-            print("⚠️ Failed to grab frame")
-            break
-        else:
-            ret, buffer = cv2.imencode('.jpg', frame)
-            if not ret:
-                continue
-            frame = buffer.tobytes()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            continue
+        ret, buffer = cv2.imencode('.jpg', frame)
+        frame = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 # ===================== NETWORK =====================
 def get_local_ip():
@@ -101,8 +89,7 @@ def index():
 
 @app.route('/video_feed')
 def video_feed():
-    return Response(generate_frames(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 # ===================== MOTOR ROUTES =====================
 @app.route('/Forward')
