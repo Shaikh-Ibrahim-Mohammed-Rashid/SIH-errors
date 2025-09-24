@@ -54,13 +54,17 @@ set_motor_speed(motor_speed)
 
 # ===================== CAMERA =====================
 video_capture = cv2.VideoCapture(0)
+video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
 def generate_frames():
     while True:
-        result, frame = video_capture.read()
-        if not result:
-            continue
+        success, frame = video_capture.read()
+        if not success:
+            break
         ret, buffer = cv2.imencode('.jpg', frame)
+        if not ret:
+            continue
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
@@ -157,10 +161,11 @@ def cleanup():
     pwm_b.stop()
     GPIO.output(PUMP_PIN, False)
     GPIO.cleanup()
+    video_capture.release()
 
 if __name__ == "__main__":
     try:
         print(f"Starting server on http://{Url_Address}:8080")
-        app.run(host=Url_Address, port=8080, threaded=True, debug=True)
+        app.run(host="0.0.0.0", port=8080, threaded=True, debug=False, use_reloader=False)
     except KeyboardInterrupt:
         cleanup()
