@@ -1,0 +1,101 @@
+<div class="container">
+    <button class="button" onclick="location.href='http://{{HTML_address}}:8080/Forward'" >forward</button>
+    <button class="button" onclick="location.href='http://{{HTML_address}}:8080/left'" >left</button>
+    <button class="button" onclick="location.href='http://{{HTML_address}}:8080/stop'" >stop</button>
+    <button class="button" onclick="location.href='http://{{HTML_address}}:8080/right'" >right</button>
+    <button class="button" onclick="location.href='http://{{HTML_address}}:8080/Backward'" >Backword</button>
+</div>
+
+<body>
+<div class="container">
+<div class="row">
+<div class="col-lg-8  offset-lg-2">
+    <h3 class="mt-5">Live Streaming</h3>
+    <img src="{{ url_for('video_feed') }}" width="300%">
+</div>
+</div>
+</div>
+
+<style>
+
+  .container {
+    display: grid;
+    grid-template-columns: 33.33% 33.33% 33.33%;
+    grid-template-rows: 33.33% 33.33% 33.33%;
+    width: 500px;
+    height: 200px;
+    zoom : 2;
+  }
+  
+    . input {
+    margin: 20px;
+    
+  }
+    .input:nth-child(1) {
+    grid-column-start: 2;
+    grid-column-end: 3;
+    
+  }
+
+.button {
+  display: inline-block;
+  padding: 15px 25px;
+  font-size: 24px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #04AA6D;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 9px #999;
+}
+
+.button:hover {background-color: #3e8e41}
+
+.button:active {
+  background-color: #3e8e41;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+
+  .button:nth-child(1) {
+    grid-column-start: 2;
+    grid-column-end: 3;
+    background: green;
+    color: white;
+  }
+
+  .button:nth-child(2) {
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 2;
+    grid-row-end: 3;
+    background: green;
+  }
+
+  .button:nth-child(3) {
+    grid-column-start: 2;
+    grid-column-end: 3;
+    grid-row-start: 2;
+    grid-row-end: 3;
+    background: red;
+  }
+
+  .button:nth-child(4) {
+     grid-column-start: 3;
+     grid-column-end: 4;
+     grid-row-start: 2;
+     grid-row-end: 3;
+     background: green;
+  }
+
+  .button:nth-child(5) {
+    grid-column-start: 2;
+    grid-column-end: 3;
+    grid-row-start: 3;
+    grid-row-end: 4;
+    background: green;
+  }
+</style>
