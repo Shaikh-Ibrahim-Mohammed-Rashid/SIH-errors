@@ -1,0 +1,13 @@
+pi@raspberrypi:~ $ cd Downloads/
+pi@raspberrypi:~/Downloads $ python3 cc.py 
+Starting server on http://10.111.84.244:8080
+ * Serving Flask app "cc" (lazy loading)
+ * Environment: production
+   WARNING: Do not use the development server in a production environment.
+   Use a production WSGI server instead.
+ * Debug mode: on
+ * Running on http://0.0.0.0:8080/ (Press CTRL+C to quit)
+ * Restarting with stat
+VIDEOIO ERROR: V4L2: Pixel format of incoming image is unsupported by OpenCV
+Unable to stop the stream: Device or resource busy
+❌ Error: Could not open camera.
