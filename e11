@@ -1,0 +1,6 @@
+Python 3.7.3 (/usr/bin/python3)
+>>> %Run e10.py
+Traceback (most recent call last):
+  File "/home/pi/Downloads/e10.py", line 4, in <module>
+    cap = cv2.VideoCapture(i, cv2.CAP_V4L2)
+TypeError: VideoCapture() takes at most 1 argument (2 given)
