@@ -1,0 +1,9 @@
+import cv2
+
+for i in range(3):
+    cap = cv2.VideoCapture(i, cv2.CAP_V4L2)
+    if cap.isOpened():
+        print(f"✅ Camera found at index {i}")
+        break
+else:
+    print("❌ No USB camera found")
