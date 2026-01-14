@@ -1,0 +1,15 @@
+# Terminal width check karke text center karne ka function
+term_width=$(tput cols)
+text="TECHCHIP"
+padding=$(( (term_width - 50) / 2 ))
+
+# Border aur Text ko print karna
+printf "%${padding}s" ""
+echo "╔══════════════════════════════════════════════╗" | lolcat
+printf "%${padding}s" ""
+figlet -f standard "  $text" | lolcat
+printf "%${padding}s" ""
+echo "║  Your True Tech Navigator (www.techchip.net) ║" | lolcat
+printf "%${padding}s" ""
+echo "╚══════════════════════════════════════════════╝" | lolcat
+
